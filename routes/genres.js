@@ -1,3 +1,5 @@
+const auth=require('../middleware/auth');
+const admin=require('../middleware/admin')
 const express = require("express");
 const router = express.Router();
 const {Genre ,validate}=require('../models/genres');
@@ -22,7 +24,7 @@ router.get("/", async (req, res) => {
   res.send({ genre });
 });
 
-router.post("/", async (req, res) => {
+router.post("/",auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   let obj = new Genre({ name: req.body.name.toUpperCase() });
@@ -42,7 +44,7 @@ router.put("/:id", async (req, res) => {
   if (!obj) return res.status(404).send("Given id is not found....");
   res.send(obj);
 });
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",[auth,admin], async (req, res) => {
   const obj = await Genre.findByIdAndRemove(req.params.id);
   if (!obj) return res.status(404).send("given id is not found....");
   res.send(obj);
